@@ -1,0 +1,66 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1' // Fat jar üçün
+}
+
+group = 'com.example'
+version = '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    flinkVersion = '1.17.2'
+    scalaBinaryVersion = '2.12'
+}
+
+dependencies {
+    // Flink API
+    implementation "org.apache.flink:flink-streaming-java:${flinkVersion}"
+    implementation "org.apache.flink:flink-clients:${flinkVersion}"
+    implementation "org.apache.flink:flink-java:${flinkVersion}"
+
+    // Kafka connector
+    implementation "org.apache.flink:flink-connector-kafka:${flinkVersion}"
+
+    // RocksDB state backend
+    implementation "org.apache.flink:flink-statebackend-rocksdb:${flinkVersion}"
+
+    // JSON parsing (Jackson)
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.3'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.3'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.3'
+
+    // Tuple support (optional)
+    implementation "org.apache.flink:flink-core:${flinkVersion}"
+
+    // Logging (optional, for debug)
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'org.slf4j:slf4j-simple:2.0.9'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(Jar) {
+    manifest {
+        attributes 'Main-Class': 'flink.demo.CardTransactionProcessor'
+    }
+}
+
+tasks.named('shadowJar') {
+    archiveBaseName.set('flink-cdc-joiner')
+    archiveClassifier.set('')
+    archiveVersion.set('')
+}
