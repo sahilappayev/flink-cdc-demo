@@ -22,56 +22,15 @@ Filter **card transactions in real time** and forward **only** those belonging t
 
 ```mermaid
 graph TD
-    A[Kafka: db.public.cards] --> B(Cards Stream)
-    B --> C[Filter null]
-    C --> D[Broadcast State<br/>Map<String, Card> in RocksDB]
-
-    E[Kafka: db.public.transactions] --> F(Transactions Stream)
-    F --> G[keyBy(card_id)]
-
-    D --> H[Broadcast Connect]
+    A["Kafka: db.public.cards"] --> B["Cards Stream"]
+    B --> C["Filter null"]
+    C --> D["Broadcast State<br/>Map<String, Card> in RocksDB"]
+    E["Kafka: db.public.transactions"] --> F["Transactions Stream"]
+    F --> G["keyBy card_id"]
+    D --> H["Broadcast Connect"]
     G --> H
-
-    H --> I[KeyedBroadcastProcessFunction<br/>Filter using broadcast state]
-    I --> J[Kafka Sink: filtered.transactions]
-
-```markdown
-# Flink CDC Transaction Filter  
-**Real-time Transaction Filtering Using Apache Flink, Kafka CDC (Debezium), Broadcast State & RocksDB**
-
----
-
-## Goal
-
-Filter **card transactions in real time** and forward **only** those belonging to cards with `auto_payment = true` to the `filtered.transactions` Kafka topic.
-
----
-
-## Data Sources (CDC via Debezium)
-
-| Topic | Source Table | Key Fields |
-|------|--------------|------------|
-| `db.public.cards` | `cards` | `card_id`, `auto_payment` (boolean) |
-| `db.public.transactions` | `transactions` | `transaction_id`, `card_id`, `amount` |
-
----
-
-## Flink Processing Pipeline
-
-```mermaid
-graph TD
-    A[Kafka: db.public.cards] --> B(Cards Stream)
-    B --> C[Filter null]
-    C --> D[Broadcast State<br/>Map<String, Card> in RocksDB]
-
-    E[Kafka: db.public.transactions] --> F(Transactions Stream)
-    F --> G[keyBy(card_id)]
-
-    D --> H[Broadcast Connect]
-    G --> H
-
-    H --> I[KeyedBroadcastProcessFunction<br/>Filter using broadcast state]
-    I --> J[Kafka Sink: filtered.transactions]
+    H --> I["KeyedBroadcastProcessFunction<br/>Filter using broadcast state"]
+    I --> J["Kafka Sink: filtered.transactions"]
 ```
 
 ### Step-by-Step Flow
