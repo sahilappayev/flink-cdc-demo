@@ -20,7 +20,6 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
-
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     depends_on:
@@ -44,12 +43,16 @@ services:
       POSTGRES_DB: demo
     volumes:
       - ./init:/docker-entrypoint-initdb.d
-    command: [
-      "postgres",
-      "-c", "wal_level=logical",
-      "-c", "max_wal_senders=1",
-      "-c", "max_replication_slots=1"
-    ]
+    command:
+      [
+        "postgres",
+        "-c",
+        "wal_level=logical",
+        "-c",
+        "max_wal_senders=1",
+        "-c",
+        "max_replication_slots=1",
+      ]
 
   connect:
     image: debezium/connect:2.6
@@ -72,15 +75,13 @@ services:
       CONNECT_REST_ADVERTISED_HOST_NAME: connect
       CONNECT_PLUGIN_PATH: /kafka/connect,/usr/share/java
       CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1  
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
     platform: linux/arm64
-
 
   #curl -X POST http://localhost:8083/connectors \
   #-H "Content-Type: application/json" \
   #-d @postgres-connector.json
-
 
   flink-jobmanager:
     image: apache/flink:1.19-java11
@@ -91,7 +92,7 @@ services:
     environment:
       - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
     volumes:
-      - /Users/appayevs/Desktop/Data/Education/Apache Flink/flink-cdc-demo:/flink-cdc-demo
+      - ./:/flink-cdc-demo
 
   flink-taskmanager:
     image: apache/flink:1.19-java11
@@ -102,4 +103,4 @@ services:
     environment:
       - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
     volumes:
-      - /Users/appayevs/Desktop/Data/Education/Apache Flink/flink-cdc-demo:/flink-cdc-demo
+      - ./:/flink-cdc-demo
